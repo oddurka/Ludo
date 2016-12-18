@@ -6,7 +6,7 @@ class Ludo(tk.Frame):
     def __init__(self, master = None):
         super().__init__(master)
         self.root = master
-        self.die = 6
+        self.die = 0
 
         self.redOnBoard = []
         self.redHome = []
@@ -24,7 +24,7 @@ class Ludo(tk.Frame):
         self.blueHome = []
         self.blueGoal = 0
         
-        self.teams = cycle(['red', 'green'])#, 'yellow', 'blue'])
+        self.teams = cycle(['red', 'green', 'yellow', 'blue'])
         self.color = ''
         self.grid()
         self.board()
@@ -82,15 +82,20 @@ class Ludo(tk.Frame):
     def move(self, event):
         if self.color == 'red':
             print('RED TURN')
-            self.move_player(event)
-        else:
-                print('GREEN TURN')
-                self.move_green(event)
+            self.move_red(event)
+        elif self.color == 'green':
+            print('GREEN TURN')
+            self.move_green(event)
+        elif self.color == 'yellow':
+            print('YELLOW TURN')
+            self.move_yellow(event)
+        elif self.color == 'blue':
+            print('BLUE TURN')
+            self.move_blue(event)
         self.gui()
 
-    def move_player(self, event):
-        if self.redHome:
-            nextColor = self.redHome[0]
+    #RED MOVE
+    def move_red(self, event):
         home = [(2,2),(2,3),(3,2),(3,3)]
         legalMoves = [(6,0), (6,1), (6,2), (6,3), (6,4), (6,5), (5,6), (4,6), (3,6), (2,6), (1,6), (0,6),
                        (0,7), (0,8), (1,8), (2,8), (3,8), (4,8), (5,8), (6,9), (6,10), (6,11), (6,12), (6,13), (6,14),
@@ -99,14 +104,14 @@ class Ludo(tk.Frame):
         if self.die != 6 and len(self.redHome) == 4:
             self.die == 0
             self.color = self.teams.__next__()
-            print(self.color, 'TURN')
         else:
             if self.die == 6:
                 for i in self.redHome:
-                    i.on =  True               
-                print(self.squares[(event.widget.row,event.widget.col)].gettags(red))
+                    i.on =  True
             if event.widget.on:
                 if (event.widget.row,event.widget.col) in home:
+                    if self.redHome:
+                        nextColor = self.redHome[0]
                     if self.color in self.squares[legalMoves[1]].gettags(red):
                         pass
                     else:
@@ -114,7 +119,7 @@ class Ludo(tk.Frame):
                         if self.redHome:
                             self.redHome.remove(nextColor)
                             self.redOnBoard.append(curRed)
-                        curRed.create_oval(5,5,45,45, fill = self.color, tags = self.color)
+                        curRed.create_oval(5,5,45,45, fill = self.color, tags = 'red')
                         curRed.on = True
                         nextColor.delete(self.color)
                     self.die = 0
@@ -127,16 +132,15 @@ class Ludo(tk.Frame):
                         pass
                     else:
                         curRed = self.squares[(event.widget.row,event.widget.col)]
-                    
-                        
+
                         if 6 > idx >= 0 and 51 < legalMoves.index((event.widget.row,event.widget.col)) + self.die and self.color in self.squares[(event.widget.row,event.widget.col)].gettags(red):
                             self.redGoal += 1
-                            nextPlace = self.squares[(7 - self.redGoal,5)]
+                            nextPlace = self.squares[(7,5 - self.redGoal)]
                         else:
                             nextPlace = self.squares[legalMoves[idx]]
                         curRed.delete(self.color)
                         curRed.on = False
-                        nextPlace.create_oval(5,5,45,45, fill = self.color, tags = self.color)
+                        nextPlace.create_oval(5,5,45,45, fill = self.color, tags = 'red')
                         nextPlace.on = True
                         self.die = 0
                         
@@ -146,10 +150,10 @@ class Ludo(tk.Frame):
                 red4.on = False
                 if self.redGoal == 4:
                     self.winner(self.color)
-                self.die == 6
+                self.die == 0
                 self.color = self.teams.__next__()
-                print(self.color, 'TURN')
 
+    #GREEN MOVE
     def move_green(self, event):
         if self.greenHome:
             nextColor = self.greenHome[0]
@@ -159,16 +163,12 @@ class Ludo(tk.Frame):
                        (7,14), (8,14), (8,13), (8,12), (8,11), (8,10), (8,9), (9,8), (10,8), (11,8), (12,8), (13,8), (14,8),
                        (14,7), (14,6), (13,6), (12,6), (11,6), (10,6), (9,6), (8,5), (8,4), (8,3), (8,2), (8,1), (8,0), (7,0)]
         if self.die != 6 and len(self.greenHome) == 4:
-            print('PASS')
             self.die == 0
             self.color = self.teams.__next__()
-            print(self.color, 'TURN')
         else:
-            print('ELSE')
             if self.die == 6:
                 for i in self.greenHome:
-                    i.on =  True               
-                print(self.squares[(event.widget.row,event.widget.col)].gettags(green))
+                    i.on =  True
             if event.widget.on:
                 if (event.widget.row,event.widget.col) in home:
                     if self.color in self.squares[legalMoves[14]].gettags(green):
@@ -193,15 +193,15 @@ class Ludo(tk.Frame):
                     idx = (legalMoves.index((event.widget.row,event.widget.col)) + self.die) % len(legalMoves)
                     if self.color in self.squares[legalMoves[idx]].gettags(green):
                         pass 
-                    elif self.color in self.squares[legalMoves[idx]].gettags(green) and 19 > idx >= 13:
+                    elif self.color in self.squares[legalMoves[idx]].gettags(green) and 19 > idx >= 14:
                         pass
                     else:
                         curGreen = self.squares[(event.widget.row,event.widget.col)]
                     
                         
-                        if 12 > idx >= 6 and 12 < legalMoves.index((event.widget.row,event.widget.col)) + self.die and self.color in self.squares[(event.widget.row,event.widget.col)].gettags(green):
+                        if 19 > idx >= 13 and 12 < legalMoves.index((event.widget.row,event.widget.col)) + self.die and self.color in self.squares[(event.widget.row,event.widget.col)].gettags(green):
                             self.greenGoal += 1
-                            nextPlace = self.squares[(5,7 - self.greenGoal)]
+                            nextPlace = self.squares[(5 - self.greenGoal,7)]
                         else:
                             nextPlace = self.squares[legalMoves[idx]]
                         curGreen.delete(self.color)
@@ -216,9 +216,128 @@ class Ludo(tk.Frame):
                 green4.on = False
                 if self.greenGoal == 4:
                     self.winner(self.color)
-                self.die == 6
+                self.die == 0
                 self.color = self.teams.__next__()
-                print(self.color, 'TURN')
+
+    #YELLOW MOVE
+    def move_yellow(self, event):
+        if self.yellowHome:
+            nextColor = self.yellowHome[0]
+        home = [(11,11),(11,12),(12,11),(12,12)]
+        legalMoves = [(6,0), (6,1), (6,2), (6,3), (6,4), (6,5), (5,6), (4,6), (3,6), (2,6), (1,6), (0,6),
+                       (0,7), (0,8), (1,8), (2,8), (3,8), (4,8), (5,8), (6,9), (6,10), (6,11), (6,12), (6,13), (6,14),
+                       (7,14), (8,14), (8,13), (8,12), (8,11), (8,10), (8,9), (9,8), (10,8), (11,8), (12,8), (13,8), (14,8),
+                       (14,7), (14,6), (13,6), (12,6), (11,6), (10,6), (9,6), (8,5), (8,4), (8,3), (8,2), (8,1), (8,0), (7,0)]
+        if self.die != 6 and len(self.yellowHome) == 4:
+            self.die == 0
+            self.color = self.teams.__next__()
+        else:
+            if self.die == 6:
+                for i in self.yellowHome:
+                    i.on =  True
+            if event.widget.on:
+                if (event.widget.row,event.widget.col) in home:
+                    if self.color in self.squares[legalMoves[27]].gettags(yellow):
+                        pass                        
+                    else:
+                        curYellow = self.squares[legalMoves[27]]
+                        if self.yellowHome:
+                            self.yellowHome.remove(nextColor)
+                            self.yellowOnBoard.append(curYellow)
+                        curYellow.create_oval(5,5,45,45, fill = self.color, tags = self.color)
+                        curYellow.on = True
+                        nextColor.delete(self.color)
+                    self.die = 0
+
+                if (event.widget.row,event.widget.col) in legalMoves:
+                    idx = (legalMoves.index((event.widget.row,event.widget.col)) + self.die) % len(legalMoves)
+                    if self.color in self.squares[legalMoves[idx]].gettags(yellow):
+                        pass 
+                    elif self.color in self.squares[legalMoves[idx]].gettags(yellow) and 33 > idx >= 26:
+                        pass
+                    else:
+                        curYellow = self.squares[(event.widget.row,event.widget.col)]
+                    
+                        
+                        if 33 > idx >= 26 and 19 < legalMoves.index((event.widget.row,event.widget.col)) + self.die and self.color in self.squares[(event.widget.row,event.widget.col)].gettags(yellow):
+                            self.yellowGoal += 1
+                            nextPlace = self.squares[(7,9 + self.yellowGoal)]
+                        else:
+                            nextPlace = self.squares[legalMoves[idx]]
+                        curYellow.delete(self.color)
+                        curYellow.on = False
+                        nextPlace.create_oval(5,5,45,45, fill = self.color, tags = self.color)
+                        nextPlace.on = True
+                        self.die = 0
+                        
+                yellow1.on = False
+                yellow2.on = False
+                yellow3.on = False
+                yellow4.on = False
+                if self.yellowGoal == 4:
+                    self.winner(self.color)
+                self.die == 0
+                self.color = self.teams.__next__()
+
+    #BLUE MOVE
+    def move_blue(self, event):
+        if self.blueHome:
+            nextColor = self.blueHome[0]
+        home = [(11,2),(12,2),(11,3),(12,3)]
+        legalMoves = [(6,0), (6,1), (6,2), (6,3), (6,4), (6,5), (5,6), (4,6), (3,6), (2,6), (1,6), (0,6),
+                       (0,7), (0,8), (1,8), (2,8), (3,8), (4,8), (5,8), (6,9), (6,10), (6,11), (6,12), (6,13), (6,14),
+                       (7,14), (8,14), (8,13), (8,12), (8,11), (8,10), (8,9), (9,8), (10,8), (11,8), (12,8), (13,8), (14,8),
+                       (14,7), (14,6), (13,6), (12,6), (11,6), (10,6), (9,6), (8,5), (8,4), (8,3), (8,2), (8,1), (8,0), (7,0)]
+        if self.die != 6 and len(self.blueHome) == 4:
+            self.die == 0
+            self.color = self.teams.__next__()
+        else:
+            if self.die == 6:
+                for i in self.blueHome:
+                    i.on =  True
+            if event.widget.on:
+                if (event.widget.row,event.widget.col) in home:
+                    if self.color in self.squares[legalMoves[40]].gettags(blue):
+                        pass                        
+                    else:
+                        curBlue = self.squares[legalMoves[40]]
+                        if self.blueHome:
+                            self.blueHome.remove(nextColor)
+                            self.blueOnBoard.append(curBlue)
+                        curBlue.create_oval(5,5,45,45, fill = self.color, tags = self.color)
+                        curBlue.on = True
+                        nextColor.delete(self.color)
+                    self.die = 0
+
+                if (event.widget.row,event.widget.col) in legalMoves:
+                    idx = (legalMoves.index((event.widget.row,event.widget.col)) + self.die) % len(legalMoves)
+                    if self.color in self.squares[legalMoves[idx]].gettags(blue):
+                        pass 
+                    elif self.color in self.squares[legalMoves[idx]].gettags(blue) and 45 > idx >= 39:
+                        pass
+                    else:
+                        curBlue = self.squares[(event.widget.row,event.widget.col)]
+                    
+                        
+                        if 45 > idx >= 39 and 32 < legalMoves.index((event.widget.row,event.widget.col)) + self.die and self.color in self.squares[(event.widget.row,event.widget.col)].gettags(blue):
+                            self.blueGoal += 1
+                            nextPlace = self.squares[(9 + self.blueGoal,7)]
+                        else:
+                            nextPlace = self.squares[legalMoves[idx]]
+                        curBlue.delete(self.color)
+                        curBlue.on = False
+                        nextPlace.create_oval(5,5,45,45, fill = self.color, tags = self.color)
+                        nextPlace.on = True
+                        self.die = 0
+                        
+                blue1.on = False
+                blue2.on = False
+                blue3.on = False
+                blue4.on = False
+                if self.blueGoal == 4:
+                    self.winner(self.color)
+                self.die == 0
+                self.color = self.teams.__next__()
 
     def roll_die(self):
         self.die = random.randint(1,6)
@@ -287,11 +406,16 @@ class Ludo(tk.Frame):
         self.greenHome.append(green4)
 
     def com_blue(self):
+        global blue1
+        global blue2
+        global blue3
+        global blue4
+        global blue
         blue1 = self.squares[(11,2)]
         blue2 = self.squares[(12,2)]
         blue3 = self.squares[(11,3)]
         blue4 = self.squares[(12,3)]
-        blue1.create_oval(5,5,45,45, fill = 'blue', tags = 'blue')
+        blue = blue1.create_oval(5,5,45,45, fill = 'blue', tags = 'blue')
         blue2.create_oval(5,5,45,45, fill = 'blue', tags = 'blue')
         blue3.create_oval(5,5,45,45, fill = 'blue', tags = 'blue')
         blue4.create_oval(5,5,45,45, fill = 'blue', tags = 'blue')
@@ -305,11 +429,16 @@ class Ludo(tk.Frame):
         self.blueHome.append(blue4)
 
     def com_yellow(self):
+        global yellow1
+        global yellow2
+        global yellow3
+        global yellow4
+        global yellow
         yellow1 = self.squares[(11,11)]
         yellow2 = self.squares[(12,11)]
         yellow3 = self.squares[(11,12)]
         yellow4 = self.squares[(12,12)]
-        yellow1.create_oval(5,5,45,45, fill = 'yellow', tags = 'yellow')
+        yellow = yellow1.create_oval(5,5,45,45, fill = 'yellow', tags = 'yellow')
         yellow2.create_oval(5,5,45,45, fill = 'yellow', tags = 'yellow')
         yellow3.create_oval(5,5,45,45, fill = 'yellow', tags = 'yellow')
         yellow4.create_oval(5,5,45,45, fill = 'yellow', tags = 'yellow')
